@@ -1,6 +1,5 @@
 import unittest
 import os
-from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities, Remote
 
 from page import AuthPage, CreatePage, CampaignsPage
@@ -17,7 +16,7 @@ class Tests(unittest.TestCase):
             command_executor='http://127.0.0.1:4444/wd/hub',
             desired_capabilities=getattr(DesiredCapabilities, browser).copy()
         )
-        
+
         auth_page = AuthPage(self.driver)
         auth_page.open()
 
@@ -32,14 +31,12 @@ class Tests(unittest.TestCase):
     def test_login(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         assert create_page.top_menu.get_email() == self.LOGIN
 
     def test_date_bad_order(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         create_page.company_time_selector.set_from('30.12.2014')
         create_page.company_time_selector.set_to('10.12.2014')
@@ -51,7 +48,6 @@ class Tests(unittest.TestCase):
     def test_bad_date(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         create_page.company_time_selector.set_to('10.12.20000')
         create_page.company_time_selector.update()
@@ -61,7 +57,6 @@ class Tests(unittest.TestCase):
     def test_add_banner(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         create_page.platform_selector.select_mobile_platform()
 
@@ -75,7 +70,6 @@ class Tests(unittest.TestCase):
     def test_save_date(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         create_page.platform_selector.select_mobile_platform()
 
@@ -95,7 +89,6 @@ class Tests(unittest.TestCase):
         campagins_page.edit_button.click()
 
         edit_page = CreatePage(self.driver)
-        edit_page.wait_for_load()
 
         assert edit_page.company_time_selector.get_from() == from_date
         assert edit_page.company_time_selector.get_to() == to_date
@@ -103,7 +96,6 @@ class Tests(unittest.TestCase):
     def test_save_income(self):
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.wait_for_load()
 
         create_page.platform_selector.select_mobile_platform()
 
@@ -121,7 +113,6 @@ class Tests(unittest.TestCase):
         campagins_page.edit_button.click()
 
         edit_page = CreatePage(self.driver)
-        edit_page.wait_for_load()
 
         assert edit_page.income_selector.get_high()
         assert not edit_page.income_selector.get_medium()

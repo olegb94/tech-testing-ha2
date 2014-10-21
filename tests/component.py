@@ -1,122 +1,142 @@
 import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 
 class BaseComponent(object):
     def __init__(self, driver):
         self.driver = driver
 
+    def find(self, locator):
+        return WebDriverWait(self.driver, 30, 0.1).until(
+            lambda d: d.find_element(locator[0], locator[1])
+        )
+
+    def find_send(self, locator, key):
+        element = self.find(locator)
+        for i in xrange(5):
+            try:
+                element.send_keys(key)
+                break
+            except Exception:
+                pass
+
+
+
+    def find_click(self, locator):
+        element = self.find(locator)
+        for i in xrange(5):
+            try:
+                element.click()
+                break
+            except Exception:
+                pass
+
 
 class AuthForm(BaseComponent):
-    LOGIN = 'id_Login'
-    PASSWORD = 'id_Password'
-    SUBMIT = '#gogogo>input'
+    LOGIN = (By.ID, 'id_Login')
+    PASSWORD = (By.ID, 'id_Password')
+    SUBMIT = (By.CSS_SELECTOR, '#gogogo>input')
 
     def set_login(self, login):
-        self.driver.find_element_by_id(self.LOGIN).send_keys(login)
+        self.find_send(self.LOGIN, login)
 
     def set_password(self, pwd):
-        self.driver.find_element_by_id(self.PASSWORD).send_keys(pwd)
+        self.find_send(self.PASSWORD, pwd)
 
     def submit(self):
-        self.driver.find_element_by_css_selector(self.SUBMIT).click()
+        self.find_click(self.SUBMIT)
 
 
 class IncomeSelector(BaseComponent):
-    LOW_ID = "income_group-9286"
-    MEDIUM_ID = "income_group-9287"
-    HIGH_ID = "income_group-9288"
-    GROUP_CSS = ".campaign-setting__wrapper_income_group .campaign-setting__value"
+    LOW = (By.ID, "income_group-9286")
+    MEDIUM = (By.ID, "income_group-9287")
+    HIGH = (By.ID, "income_group-9288")
+    GROUP = (By.CSS_SELECTOR, ".campaign-setting__wrapper_income_group .campaign-setting__value")
 
     def __init__(self, driver):
         self.driver = driver
-        self.driver.find_element_by_css_selector(self.GROUP_CSS).click()
+        self.find_click(self.GROUP)
 
     def select_high(self):
-        self.driver.find_element_by_id(self.HIGH_ID).click()
+        self.find_click(self.HIGH)
 
     def select_medium(self):
-        self.driver.find_element_by_id(self.MEDIUM_ID).click()
+        self.find_click(self.MEDIUM)
 
     def select_low(self):
-        self.driver.find_element_by_id(self.LOW_ID).click()
+        self.find_click(self.LOW)
 
     def get_high(self):
-        return self.driver.find_element_by_id(self.HIGH_ID).is_selected()
+        return self.find(self.HIGH).is_selected()
 
     def get_medium(self):
-        return self.driver.find_element_by_id(self.MEDIUM_ID).is_selected()
+        return self.find(self.MEDIUM).is_selected()
 
     def get_low(self):
-        return self.driver.find_element_by_id(self.LOW_ID).is_selected()
+        return self.find(self.LOW).is_selected()
 
 
 class CompanyTimeSelector(BaseComponent):
-    FROM_XPATH = '//input[@class="campaign-setting__detail__date-input hasDatepicker"][@data-name="from"]'
-    TO_XPATH = '//input[@class="campaign-setting__detail__date-input hasDatepicker"][@data-name="to"]'
-    GROUP_CSS = ".campaign-setting__wrapper_date .campaign-setting__value"
+    FROM = (By.XPATH, '//input[@class="campaign-setting__detail__date-input hasDatepicker"][@data-name="from"]')
+    TO = (By.XPATH, '//input[@class="campaign-setting__detail__date-input hasDatepicker"][@data-name="to"]')
+    GROUP = (By.CSS_SELECTOR, ".campaign-setting__wrapper_date .campaign-setting__value")
 
     def __init__(self, driver):
         self.driver = driver
-        WebDriverWait(self.driver, 30, 0.1).until(
-            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, self.GROUP_CSS))
-        ).click()
+        self.find_click(self.GROUP)
 
     def set_from(self, from_date):
-        self.driver.find_element_by_xpath(self.FROM_XPATH).send_keys(from_date)
+        self.find_send(self.FROM, from_date)
 
     def set_to(self, to_date):
-        self.driver.find_element_by_xpath(self.TO_XPATH).send_keys(to_date)
+        self.find_send(self.TO, to_date)
 
     def get_from(self):
-        return self.driver.find_element_by_xpath(self.FROM_XPATH).get_attribute("value")
+        return self.find(self.FROM).get_attribute("value")
 
     def get_to(self):
-        return self.driver.find_element_by_xpath(self.TO_XPATH).get_attribute("value")
+        return self.find(self.TO).get_attribute("value")
 
     def update(self):
-        self.driver.find_element_by_xpath(self.TO_XPATH).send_keys(Keys.RETURN)
+        self.find_send(self.TO, Keys.RETURN)
 
 
 class PlatformSelector(BaseComponent):
-    def select_mobile_platform(self):
-        self.driver.find_element_by_id('product-type-6039').click()
+    TYPE = (By.ID, 'product-type-6039')
+    MOBILE = (By.ID, 'pad-mobile_app_mobile_service')
 
-        WebDriverWait(self.driver, 30, 1).until(
-            expected_conditions.presence_of_element_located((By.ID, 'pad-mobile_app_mobile_service'))
-        ).click()
+    def select_mobile_platform(self):
+        self.find_click(self.TYPE)
+        self.find_click(self.MOBILE)
 
 
 class BannerCreator(BaseComponent):
-    PICTURE_XPATH = '//input[@data-name="image"][@type="file"]'
-    LINK_XPATH = '//li[@data-top="false"]/span/input[@class="banner-form__input"][@data-name="url"]'
-    BUTTON_CSS = '.banner-form__save-button'
-    BANNER_CSS = '.added-banner'
+    PICTURE = (By.XPATH, '//input[@data-name="image"][@type="file"]')
+    LINK = (By.XPATH, '//li[@data-top="false"]/span/input[@class="banner-form__input"][@data-name="url"]')
+    BUTTON = (By.CSS_SELECTOR, '.banner-form__save-button')
+    BANNER = (By.CSS_SELECTOR, '.added-banner')
+    BANNER_PREVIEW = (By.CSS_SELECTOR, '.banner-preview__img')
 
     def set_picture(self, path):
         path = os.path.abspath(path)
-        self.driver.find_element_by_xpath(self.PICTURE_XPATH).send_keys(path)
+        self.find_send(self.PICTURE, path)
+
         WebDriverWait(self.driver, 30, 0.1).until(
-            lambda d: d.find_element_by_css_selector('.banner-preview .banner-preview__img')
+            lambda d: d.find_element(self.BANNER_PREVIEW[0], self.BANNER_PREVIEW[1])
             .value_of_css_property("display") == 'block'
         )
 
     def set_link(self, link):
-        self.driver.find_element_by_xpath(self.LINK_XPATH).send_keys(link)
+        self.find_send(self.LINK, link)
 
     def submit(self):
-        self.driver.find_element_by_css_selector(self.BUTTON_CSS).click()
-        WebDriverWait(self.driver, 30).until(
-            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, self.BANNER_CSS))
-        )
+        self.find_click(self.BUTTON)
+        self.find(self.BANNER)
 
 
 class TopMenu(BaseComponent):
-    EMAIL = '#PH_user-email'
+    EMAIL = (By.CSS_SELECTOR, '#PH_user-email')
 
     def get_email(self):
-        return WebDriverWait(self.driver, 30, 0.1).until(
-            lambda d: d.find_element_by_css_selector(self.EMAIL).text
-        )
+        return self.find(self.EMAIL).text

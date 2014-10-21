@@ -1,18 +1,12 @@
 import urlparse
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
-
-from component import AuthForm, IncomeSelector, CompanyTimeSelector, PlatformSelector, BannerCreator, TopMenu
+from component import BaseComponent, AuthForm, IncomeSelector, CompanyTimeSelector, PlatformSelector, BannerCreator, TopMenu
 
 
-class Page(object):
+class Page(BaseComponent):
     BASE_URL = 'https://target.mail.ru'
     PATH = ''
-
-    def __init__(self, driver):
-        self.driver = driver
 
     def open(self):
         url = urlparse.urljoin(self.BASE_URL, self.PATH)
@@ -29,22 +23,17 @@ class AuthPage(Page):
 
 class CreatePage(Page):
     PATH = '/ads/create'
-    CREATE_CSS = '.main-button__label'
-    BANNER_CSS = '.added-banner'
+    CREATE = (By.CSS_SELECTOR, '.main-button__label')
+    BANNER = (By.CSS_SELECTOR, '.added-banner')
 
     def __init__(self, driver):
         self.driver = driver
         self.iselector = None
         self.cselector = None
 
-    def wait_for_load(self):
-        WebDriverWait(self.driver, 30, 0.1).until(
-            lambda d: d.find_element_by_css_selector(self.CREATE_CSS)
-        )
-
     @property
     def create_button(self):
-        return self.driver.find_element_by_css_selector(self.CREATE_CSS)
+        return self.find(self.CREATE)
 
     @property
     def income_selector(self):
@@ -72,17 +61,13 @@ class CreatePage(Page):
 
     @property
     def banner(self):
-        return WebDriverWait(self.driver, 30).until(
-            lambda d: d.find_element_by_css_selector(self.BANNER_CSS)
-        )
+        return self.find(self.BANNER)
 
 
 class CampaignsPage(Page):
     PATH = '/ads/campaigns/'
-    EDIT_CSS = '.control__link_edit'
+    EDIT = (By.CSS_SELECTOR, '.control__link_edit')
 
     @property
     def edit_button(self):
-        return WebDriverWait(self.driver, 30).until(
-            lambda d: d.find_element_by_css_selector(self.EDIT_CSS)
-        )
+        return self.find(self.EDIT)
